@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#212c40">
+<title>Finance User Dashboard | Stackly</title>
+
+<style>
+:root{
+    --primary:#212c40;
+    --primary-dark:#182235;
+    --primary-light:#2d3a51;
+    --accent:#718da3;
+    --text:#212c40;
+    --muted:#687386;
+    --border:#dfe3e9;
+    --bg:#f5f7fa;
+    --white:#fff;
+    --success:#198754;
+    --danger:#dc3545;
+    --warning:#c58b17;
+    --info:#3178c6;
+    --shadow:0 10px 30px rgba(33,44,64,.08);
+    --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%}
+body{
+    font-family:Inter,Arial,Helvetica,sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    overflow:hidden;
+}
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+
+.dash-shell{
+    width:100%;
+    height:100vh;
+    height:100dvh;
+    display:grid;
+    grid-template-columns:260px minmax(0,1fr);
+    overflow:hidden;
+}
+
+/* SIDEBAR */
+.dash-sidebar{
+    width:260px;
+    height:100vh;
+    height:100dvh;
+    background:var(--primary);
+    color:#fff;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    overflow-x:hidden;
+    scrollbar-width:thin;
+    scrollbar-color:#718da3 var(--primary);
+    z-index:10000;
+}
+.dash-sidebar::-webkit-scrollbar{width:6px}
+.dash-sidebar::-webkit-scrollbar-track{background:var(--primary)}
+.dash-sidebar::-webkit-scrollbar-thumb{background:#718da3;border-radius:10px}
+.dash-sidebar::-webkit-scrollbar-thumb:hover{background:#8da8bb}
+
+.sidebar-brand{
+    min-height:78px;
+    padding:18px 21px;
+    display:flex;
+    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    flex-shrink:0;
+}
+.sidebar-brand a{display:flex;align-items:center}
+.sidebar-brand img{
+    width:145px;
+    max-width:100%;
+    height:auto;
+    display:block;
+}
+.brand-fallback{
+    color:#fff;
+    font-size:21px;
+    font-weight:800;
+    letter-spacing:1.4px;
+}
+
+.user-profile{
+    padding:18px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    flex-shrink:0;
+}
+.profile-row{display:flex;align-items:center;gap:11px}
+.avatar{
+    width:43px;height:43px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:#fff;color:var(--primary);
+    font-weight:800;flex-shrink:0;
+}
+.profile-copy strong{display:block;font-size:13px;margin-bottom:4px}
+.profile-copy span{
+    display:block;color:rgba(255,255,255,.62);font-size:10px;
+    word-break:break-word;line-height:1.4;
+}
+
+.dash-menu{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    padding:17px 12px 12px;
+    flex:1;
+}
+.menu-label{
+    color:rgba(255,255,255,.42);
+    font-size:10px;font-weight:700;letter-spacing:1.3px;
+    padding:10px 12px 6px;text-transform:uppercase;
+}
+.dash-menu a{
+    min-height:45px;
+    display:flex;align-items:center;gap:11px;
+    padding:10px 13px;border-radius:10px;
+    color:rgba(255,255,255,.72);
+    font-size:12px;font-weight:650;
+    transition:.2s ease;
+}
+.dash-menu a:hover{background:rgba(255,255,255,.08);color:#fff}
+.dash-menu a.active{background:#fff;color:var(--primary)}
+.menu-icon{width:22px;text-align:center;flex-shrink:0;font-size:15px}
+.menu-badge{
+    margin-left:auto;min-width:21px;height:21px;padding:0 6px;
+    display:inline-flex;align-items:center;justify-content:center;
+    border-radius:20px;background:rgba(255,255,255,.12);
+    font-size:10px;color:#fff;
+}
+.dash-menu a.active .menu-badge{background:var(--primary)}
+
+.sidebar-footer{
+    padding:12px;
+    border-top:1px solid rgba(255,255,255,.08);
+    flex-shrink:0;
+}
+.logout-btn{
+    width:100%;min-height:45px;border:0;border-radius:10px;
+    background:rgba(220,53,69,.14);color:#ffb5bd;
+    display:flex;align-items:center;gap:11px;padding:10px 13px;
+    font-size:12px;font-weight:700;transition:.2s;
+}
+.logout-btn:hover{background:var(--danger);color:#fff}
+
+/* MAIN */
+.dash-main{
+    min-width:0;
+    height:100vh;height:100dvh;
+    overflow-y:auto;overflow-x:hidden;
+    background:var(--bg);
+}
+.topbar{
+    min-height:76px;padding:13px 28px;
+    background:rgba(255,255,255,.97);
+    border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+    position:sticky;top:0;z-index:100;
+}
+.topbar-left{display:flex;align-items:center;gap:13px;min-width:0}
+.mobile-menu-btn{
+    display:none;width:42px;height:42px;border:1px solid var(--border);
+    border-radius:10px;background:#fff;color:var(--primary);font-size:18px;
+}
+.page-title h1{font-size:21px;margin-bottom:4px}
+.page-title p{font-size:11px;color:var(--muted)}
+.topbar-right{display:flex;align-items:center;gap:13px}
+.login-meta{text-align:right}
+.login-meta strong{
+    display:block;font-size:11px;max-width:270px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.login-meta span{font-size:10px;color:var(--muted)}
+.top-avatar{
+    width:41px;height:41px;border-radius:50%;
+    background:var(--primary);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;
+}
+.content{padding:27px;max-width:1750px;margin:auto}
+
+/* SECTIONS */
+.dashboard-section{display:none}
+.dashboard-section.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.welcome-card{
+    background:var(--primary);
+    color:#fff;
+    border-radius:var(--radius);
+    padding:21px 22px;
+    margin-bottom:20px;
+}
+.welcome-card small{
+    display:block;color:rgba(255,255,255,.58);
+    font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;
+}
+.welcome-card h2{font-size:20px;margin-bottom:5px}
+.welcome-card p{font-size:11px;color:rgba(255,255,255,.68);line-height:1.5}
+.welcome-card strong{color:#fff}
+
+.stats-grid{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:15px;margin-bottom:20px;
+}
+.stat-card{
+    background:#fff;border:1px solid var(--border);
+    border-radius:var(--radius);padding:19px;box-shadow:var(--shadow);
+}
+.stat-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.stat-label{
+    color:var(--muted);font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.5px;
+}
+.stat-icon{
+    width:39px;height:39px;border-radius:10px;
+    background:#edf1f5;color:var(--primary);
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.stat-value{font-size:27px;font-weight:800;margin-top:13px}
+.stat-change{font-size:10px;color:var(--muted);margin-top:6px}
+.stat-change.success{color:var(--success)}
+.stat-change.danger{color:var(--danger)}
+
+.grid-2{
+    display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.8fr);
+    gap:18px;margin-bottom:20px;
+}
+.card{
+    background:#fff;border:1px solid var(--border);
+    border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+}
+.card-head{
+    min-height:60px;padding:15px 19px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.card-head h3{font-size:13px}
+.card-head a{color:var(--primary);font-size:10px;font-weight:700}
+.card-body{padding:19px}
+
+.chart{
+    height:220px;display:flex;align-items:flex-end;gap:12px;
+    padding:18px 10px 0;border-bottom:1px solid var(--border);
+}
+.bar-wrap{
+    height:100%;flex:1;display:flex;flex-direction:column;
+    justify-content:flex-end;align-items:center;gap:8px;
+}
+.bar{
+    width:100%;max-width:42px;border-radius:8px 8px 2px 2px;
+    background:var(--accent);min-height:10px;
+}
+.bar-label{font-size:10px;color:var(--muted)}
+.chart-legend{
+    display:flex;justify-content:space-between;
+    padding-top:12px;font-size:10px;color:var(--muted);
+}
+
+.table-wrap{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{
+    padding:13px 17px;border-bottom:1px solid #edf0f3;
+    text-align:left;font-size:11px;white-space:nowrap;
+}
+th{
+    background:#fafbfc;color:var(--muted);font-size:9px;
+    text-transform:uppercase;letter-spacing:.7px;
+}
+td{color:#3d4859}
+tr:last-child td{border-bottom:0}
+
+.status{
+    display:inline-flex;align-items:center;min-height:23px;
+    padding:4px 8px;border-radius:20px;font-size:9px;font-weight:700;
+}
+.status.paid,.status.success{background:#eaf7f0;color:var(--success)}
+.status.pending{background:#fff6df;color:#a87500}
+.status.failed,.status.overdue{background:#fff0f1;color:var(--danger)}
+.status.processing{background:#edf4ff;color:var(--info)}
+
+.activity-list{list-style:none}
+.activity-item{
+    display:flex;gap:10px;padding:13px 0;
+    border-bottom:1px solid #edf0f3;
+}
+.activity-item:last-child{border-bottom:0}
+.activity-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--primary);margin-top:5px;flex-shrink:0;
+}
+.activity-item p{font-size:11px;line-height:1.45;color:#465164}
+.activity-item span{font-size:9px;color:var(--muted);display:block;margin-top:3px}
+
+.section-head{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    gap:15px;margin-bottom:18px;
+}
+.section-head h2{font-size:19px;margin-bottom:5px}
+.section-head p{font-size:11px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{
+    min-height:39px;padding:8px 14px;border-radius:9px;
+    border:1px solid transparent;display:inline-flex;
+    align-items:center;justify-content:center;gap:6px;
+    font-size:10px;font-weight:700;transition:.2s;
+}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-light{background:#fff;color:var(--text);border-color:var(--border)}
+.btn-light:hover{border-color:var(--primary)}
+
+.filter-bar{
+    display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:15px;
+}
+.search-box{position:relative;flex:1;min-width:210px}
+.search-box input,.filter-select,.form-control{
+    width:100%;height:41px;border:1px solid var(--border);
+    border-radius:9px;background:#fff;outline:0;color:var(--text);
+    padding:0 12px;font-size:11px;
+}
+.filter-select{width:auto;min-width:145px}
+.search-box input:focus,.filter-select:focus,.form-control:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(33,44,64,.07);
+}
+
+.progress{height:7px;border-radius:10px;background:#edf0f3;overflow:hidden}
+.progress span{display:block;height:100%;background:var(--accent);border-radius:10px}
+
+.quick-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:13px;
+}
+.quick-card{border:1px solid var(--border);border-radius:12px;padding:16px}
+.quick-card h4{font-size:12px;margin-bottom:6px}
+.quick-card p{font-size:10px;line-height:1.5;color:var(--muted);margin-bottom:12px}
+
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form-group label{display:block;font-size:10px;font-weight:700;margin-bottom:6px}
+.form-group.full{grid-column:1/-1}
+textarea.form-control{height:100px;padding:11px;resize:vertical}
+
+.info-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+}
+.info-box{border:1px solid var(--border);border-radius:12px;padding:16px}
+.info-box small{
+    display:block;color:var(--muted);font-size:9px;
+    text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;
+}
+.info-box strong{font-size:19px}
+
+/* MOBILE */
+.sidebar-overlay{display:none}
+
+@media(max-width:1200px){
+    .stats-grid{grid-template-columns:repeat(2,1fr)}
+    .grid-2{grid-template-columns:1fr}
+}
+
+@media(max-width:991px){
+    .dash-shell{display:block;position:relative}
+    .dash-sidebar{
+        position:fixed;left:0;top:0;bottom:0;
+        width:280px;max-width:86vw;
+        height:100vh;height:100dvh;
+        transform:translateX(-105%);
+        transition:transform .3s ease;
+        box-shadow:12px 0 35px rgba(0,0,0,.2);
+    }
+    .dash-sidebar.active{transform:translateX(0)}
+    .sidebar-overlay{
+        display:block;position:fixed;inset:0;
+        background:rgba(10,18,30,.48);z-index:9999;
+        opacity:0;visibility:hidden;transition:.25s ease;
+    }
+    .sidebar-overlay.active{opacity:1;visibility:visible}
+    .mobile-menu-btn{
+        display:inline-flex;align-items:center;justify-content:center;
+    }
+    .dash-main{width:100%;height:100vh;height:100dvh}
+    .topbar{padding:11px 18px}
+    .content{padding:20px 18px}
+}
+
+@media(max-width:700px){
+    .stats-grid{grid-template-columns:1fr}
+    .quick-grid,.info-grid{grid-template-columns:1fr}
+    .section-head{align-items:flex-start;flex-direction:column}
+    .login-meta{display:none}
+    .form-grid{grid-template-columns:1fr}
+    .form-group.full{grid-column:auto}
+    .welcome-card h2{font-size:18px}
+}
+
+@media(max-width:480px){
+    .content{padding:15px 11px}
+    .topbar{min-height:66px;padding:10px 12px}
+    .page-title h1{font-size:18px}
+    .page-title p{font-size:9px}
+    .top-avatar{width:37px;height:37px}
+    .stat-card{padding:16px}
+    .stat-value{font-size:25px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="dash-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="dash-sidebar" id="dashSidebar">
+
+        <div class="sidebar-brand">
+         <a href="index.html" aria-label="Stackly Home">
+                <img src="images/logo.webp"
+                     alt="STACKLY"
+                     onerror="this.style.display='none';document.getElementById('brandFallback').style.display='block';">
+            </a>
+        </div>
+
+        <div class="user-profile">
+            <div class="profile-row">
+                <div class="avatar" id="sideAvatar">U</div>
+                <div class="profile-copy">
+                    <strong>Finance User</strong>
+                    <span id="sideEmail">user@example.com</span>
+                </div>
+            </div>
+        </div>
+
+        <ul class="dash-menu">
+
+            <li class="menu-label">Main</li>
+
+            <li>
+                <a href="#dashboard" class="menu-link active" data-section="dashboard">
+                    <span class="menu-icon">⌂</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#transactions" class="menu-link" data-section="transactions">
+                    <span class="menu-icon">↔</span>
+                    <span>Transactions</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#invoices" class="menu-link" data-section="invoices">
+                    <span class="menu-icon">▤</span>
+                    <span>My Invoices</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#payments" class="menu-link" data-section="payments">
+                    <span class="menu-icon">₹</span>
+                    <span>Payments</span>
+                    <span class="menu-badge">3</span>
+                </a>
+            </li>
+
+            <li class="menu-label">Finance</li>
+
+            <li>
+                <a href="#expenses" class="menu-link" data-section="expenses">
+                    <span class="menu-icon">↘</span>
+                    <span>My Expenses</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#budget" class="menu-link" data-section="budget">
+                    <span class="menu-icon">◫</span>
+                    <span>Budget</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#reports" class="menu-link" data-section="reports">
+                    <span class="menu-icon">▥</span>
+                    <span>Reports</span>
+                </a>
+            </li>
+
+            <li class="menu-label">Account</li>
+
+            <li>
+                <a href="#profile" class="menu-link" data-section="profile">
+                    <span class="menu-icon">●</span>
+                    <span>Profile</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#settings" class="menu-link" data-section="settings">
+                    <span class="menu-icon">⚙</span>
+                    <span>Settings</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="404.html">
+                    <span class="menu-icon">?</span>
+                    <span>Help Center</span>
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="sidebar-footer">
+            <button type="button" class="logout-btn" id="logoutBtn">
+                <span class="menu-icon">↪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN -->
+    <main class="dash-main">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Open sidebar">☰</button>
+
+                <div class="page-title">
+                    <h1 id="pageHeading">My Finance Dashboard</h1>
+                    <p id="pageSubheading">Track your payments, expenses, invoices and financial activity.</p>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="login-meta">
+                    <strong id="topEmail">user@example.com</strong>
+                    <span>Login: <span id="loginTime">--</span></span>
+                </div>
+                <div class="top-avatar" id="topAvatar">U</div>
+            </div>
+
+        </header>
+
+        <div class="content">
+
+            <!-- DASHBOARD -->
+            <section class="dashboard-section active" id="section-dashboard">
+
+                <div class="welcome-card">
+                    <small>Welcome Back</small>
+                    <h2>Hello, Finance User</h2>
+                    <p>
+                        Signed in with <strong id="welcomeEmail">user@example.com</strong>.
+                        Last login: <strong id="welcomeLoginTime">--</strong>
+                    </p>
+                </div>
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-label">Account Balance</div>
+                            <div class="stat-icon">₹</div>
+                        </div>
+                        <div class="stat-value">₹2.84L</div>
+                        <div class="stat-change success">↑ 8.4% this month</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-label">Total Income</div>
+                            <div class="stat-icon">↗</div>
+                        </div>
+                        <div class="stat-value">₹6.42L</div>
+                        <div class="stat-change success">↑ 12.1% this month</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-label">Total Expenses</div>
+                            <div class="stat-icon">↘</div>
+                        </div>
+                        <div class="stat-value">₹2.18L</div>
+                        <div class="stat-change">This month</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <div class="stat-label">Pending Payments</div>
+                            <div class="stat-icon">◷</div>
+                        </div>
+                        <div class="stat-value">₹42K</div>
+                        <div class="stat-change danger">3 payments pending</div>
+                    </div>
+
+                </div>
+
+                <div class="grid-2">
+
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Monthly Spending</h3>
+                            <a href="404.html">View All</a>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="chart">
+                                <div class="bar-wrap"><div class="bar" style="height:43%"></div><span class="bar-label">Jan</span></div>
+                                <div class="bar-wrap"><div class="bar" style="height:55%"></div><span class="bar-label">Feb</span></div>
+                                <div class="bar-wrap"><div class="bar" style="height:48%"></div><span class="bar-label">Mar</span></div>
+                                <div class="bar-wrap"><div class="bar" style="height:64%"></div><span class="bar-label">Apr</span></div>
+                                <div class="bar-wrap"><div class="bar" style="height:58%"></div><span class="bar-label">May</span></div>
+                                <div class="bar-wrap"><div class="bar" style="height:72%"></div><span class="bar-label">Jun</span></div>
+                                <div class="bar-wrap"><div class="bar" style="height:66%"></div><span class="bar-label">Jul</span></div>
+                                <div class="bar-wrap"><div class="bar" style="height:54%"></div><span class="bar-label">Aug</span></div>
+                            </div>
+                            <div class="chart-legend">
+                                <span>Average monthly spending</span>
+                                <strong>₹2.18L</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Budget Status</h3>
+                            <a href="#budget" class="section-link" data-section-link="budget">Details</a>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div style="margin-bottom:20px">
+                                <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:7px">
+                                    <span>Housing</span><strong>72%</strong>
+                                </div>
+                                <div class="progress"><span style="width:72%"></span></div>
+                            </div>
+
+                            <div style="margin-bottom:20px">
+                                <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:7px">
+                                    <span>Food & Daily</span><strong>48%</strong>
+                                </div>
+                                <div class="progress"><span style="width:48%"></span></div>
+                            </div>
+
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:7px">
+                                    <span>Subscriptions</span><strong>34%</strong>
+                                </div>
+                                <div class="progress"><span style="width:34%"></span></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="grid-2">
+
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Recent Transactions</h3>
+                            <a href="#transactions" class="section-link" data-section-link="transactions">View All</a>
+                        </div>
+
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Reference</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>TRX-8042</td>
+                                        <td>Salary Credit</td>
+                                        <td>+₹84,500</td>
+                                        <td>09 Sep 2026</td>
+                                        <td><span class="status paid">Completed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>TRX-8041</td>
+                                        <td>Insurance Premium</td>
+                                        <td>-₹12,400</td>
+                                        <td>08 Sep 2026</td>
+                                        <td><span class="status paid">Paid</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>TRX-8040</td>
+                                        <td>Online Subscription</td>
+                                        <td>-₹2,499</td>
+                                        <td>07 Sep 2026</td>
+                                        <td><span class="status processing">Processing</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>TRX-8039</td>
+                                        <td>Utility Bill</td>
+                                        <td>-₹4,860</td>
+                                        <td>06 Sep 2026</td>
+                                        <td><span class="status pending">Pending</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Recent Activity</h3>
+                            <a href="#reports" class="section-link" data-section-link="reports">View All</a>
+                        </div>
+
+                        <div class="card-body">
+                            <ul class="activity-list">
+                                <li class="activity-item">
+                                    <span class="activity-dot"></span>
+                                    <div><p>Your salary payment was received.</p><span>15 minutes ago</span></div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="activity-dot"></span>
+                                    <div><p>Insurance payment completed.</p><span>1 hour ago</span></div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="activity-dot"></span>
+                                    <div><p>New invoice is available for review.</p><span>2 hours ago</span></div>
+                                </li>
+                                <li class="activity-item">
+                                    <span class="activity-dot"></span>
+                                    <div><p>Monthly budget was updated.</p><span>Yesterday</span></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card">
+                    <div class="card-head"><h3>Quick Finance Actions</h3></div>
+                    <div class="card-body">
+                        <div class="quick-grid">
+
+                            <div class="quick-card">
+                                <h4>Make Payment</h4>
+                                <p>Continue to the payment page to make a new payment.</p>
+                                <a href="404.html" class="btn btn-primary">Make Payment</a>
+                            </div>
+
+                            <div class="quick-card">
+                                <h4>View Invoice</h4>
+                                <p>Review your invoices, payment status and due dates.</p>
+                                <a href="#invoices" class="btn btn-primary section-link" data-section-link="invoices">View Invoices</a>
+                            </div>
+
+                            <div class="quick-card">
+                                <h4>Manage Budget</h4>
+                                <p>Review your monthly spending limits and budget usage.</p>
+                                <a href="#budget" class="btn btn-primary section-link" data-section-link="budget">Manage Budget</a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- TRANSACTIONS -->
+            <section class="dashboard-section" id="section-transactions">
+
+                <div class="section-head">
+                    <div>
+                        <h2>My Transactions</h2>
+                        <p>Review your personal income and expense transactions.</p>
+                    </div>
+                    <div class="actions">
+                        <a href="404.html" class="btn btn-primary">+ Add Transaction</a>
+                        <a href="404.html" class="btn btn-light">View All</a>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <input id="transactionSearch" type="search" placeholder="Search transactions...">
+                    </div>
+                    <select id="transactionFilter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                    </select>
+                    <a href="404.html" class="btn btn-light">Filter</a>
+                </div>
+
+                <div class="card">
+                    <div class="table-wrap">
+                        <table id="transactionTable">
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>TRX-8042</td><td>Salary Credit</td><td>Income</td><td>+₹84,500</td><td>09 Sep 2026</td><td><span class="status paid">Completed</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>TRX-8041</td><td>Insurance Premium</td><td>Expense</td><td>-₹12,400</td><td>08 Sep 2026</td><td><span class="status paid">Paid</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>TRX-8040</td><td>Online Subscription</td><td>Expense</td><td>-₹2,499</td><td>07 Sep 2026</td><td><span class="status processing">Processing</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>TRX-8039</td><td>Utility Bill</td><td>Expense</td><td>-₹4,860</td><td>06 Sep 2026</td><td><span class="status pending">Pending</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>TRX-8038</td><td>Freelance Income</td><td>Income</td><td>+₹28,000</td><td>05 Sep 2026</td><td><span class="status paid">Completed</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- INVOICES -->
+            <section class="dashboard-section" id="section-invoices">
+
+                <div class="section-head">
+                    <div>
+                        <h2>My Invoices</h2>
+                        <p>View your invoices, due dates and payment status.</p>
+                    </div>
+                    <div class="actions">
+                        <a href="404.html" class="btn btn-primary">View All</a>
+                        <a href="404.html" class="btn btn-light">Download</a>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Invoices</div><div class="stat-value">18</div></div>
+                    <div class="stat-card"><div class="stat-label">Paid</div><div class="stat-value">14</div></div>
+                    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value">3</div></div>
+                    <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-value">1</div></div>
+                </div>
+
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>Invoice</th><th>Service</th><th>Issue Date</th><th>Due Date</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>INV-U2048</td><td>Professional Services</td><td>01 Sep 2026</td><td>15 Sep 2026</td><td>₹42,500</td><td><span class="status paid">Paid</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>INV-U2047</td><td>Consulting</td><td>01 Sep 2026</td><td>12 Sep 2026</td><td>₹18,200</td><td><span class="status pending">Pending</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>INV-U2046</td><td>Subscription</td><td>25 Aug 2026</td><td>05 Sep 2026</td><td>₹8,900</td><td><span class="status overdue">Overdue</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>INV-U2045</td><td>Software License</td><td>20 Aug 2026</td><td>05 Sep 2026</td><td>₹12,600</td><td><span class="status paid">Paid</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- PAYMENTS -->
+            <section class="dashboard-section" id="section-payments">
+
+                <div class="section-head">
+                    <div>
+                        <h2>Payments</h2>
+                        <p>Track your recent payments and payment status.</p>
+                    </div>
+                    <div class="actions">
+                        <a href="404.html" class="btn btn-primary">+ Make Payment</a>
+                        <a href="404.html" class="btn btn-light">View All</a>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Paid This Month</div><div class="stat-value">₹1.84L</div><div class="stat-change success">↑ 6.8%</div></div>
+                    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value">₹42K</div></div>
+                    <div class="stat-card"><div class="stat-label">Successful Payments</div><div class="stat-value">26</div></div>
+                    <div class="stat-card"><div class="stat-label">Failed</div><div class="stat-value">1</div></div>
+                </div>
+
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>Payment ID</th><th>Purpose</th><th>Date</th><th>Method</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>PAY-5521</td><td>Insurance</td><td>08 Sep 2026</td><td>Bank Transfer</td><td>₹12,400</td><td><span class="status paid">Successful</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>PAY-5520</td><td>Subscription</td><td>07 Sep 2026</td><td>Card</td><td>₹2,499</td><td><span class="status processing">Processing</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>PAY-5519</td><td>Utility Bill</td><td>06 Sep 2026</td><td>UPI</td><td>₹4,860</td><td><span class="status pending">Pending</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- EXPENSES -->
+            <section class="dashboard-section" id="section-expenses">
+
+                <div class="section-head">
+                    <div>
+                        <h2>My Expenses</h2>
+                        <p>Monitor your personal spending and expense history.</p>
+                    </div>
+                    <div class="actions">
+                        <a href="404.html" class="btn btn-primary">+ Add Expense</a>
+                        <a href="404.html" class="btn btn-light">View All</a>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">This Month</div><div class="stat-value">₹2.18L</div></div>
+                    <div class="stat-card"><div class="stat-label">Housing</div><div class="stat-value">₹82K</div></div>
+                    <div class="stat-card"><div class="stat-label">Daily Expenses</div><div class="stat-value">₹48K</div></div>
+                    <div class="stat-card"><div class="stat-label">Subscriptions</div><div class="stat-value">₹21K</div></div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="search-box">
+                        <input id="expenseSearch" type="search" placeholder="Search expenses...">
+                    </div>
+                    <a href="404.html" class="btn btn-light">Filter</a>
+                </div>
+
+                <div class="card">
+                    <div class="table-wrap">
+                        <table id="expenseTable">
+                            <thead>
+                                <tr><th>Reference</th><th>Category</th><th>Description</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>EXP-U301</td><td>Housing</td><td>Monthly rent</td><td>01 Sep 2026</td><td>₹82,000</td><td><span class="status paid">Paid</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>EXP-U300</td><td>Insurance</td><td>Health insurance</td><td>08 Sep 2026</td><td>₹12,400</td><td><span class="status paid">Paid</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>EXP-U299</td><td>Subscriptions</td><td>Digital services</td><td>07 Sep 2026</td><td>₹2,499</td><td><span class="status processing">Processing</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>EXP-U298</td><td>Utilities</td><td>Electricity and internet</td><td>06 Sep 2026</td><td>₹4,860</td><td><span class="status pending">Pending</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- BUDGET -->
+            <section class="dashboard-section" id="section-budget">
+
+                <div class="section-head">
+                    <div>
+                        <h2>My Budget</h2>
+                        <p>Monitor monthly limits and your current spending.</p>
+                    </div>
+                    <div class="actions">
+                        <a href="404.html" class="btn btn-primary">Edit Budget</a>
+                        <a href="404.html" class="btn btn-light">View All</a>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Monthly Budget</div><div class="stat-value">₹3.75L</div></div>
+                    <div class="stat-card"><div class="stat-label">Spent</div><div class="stat-value">₹2.18L</div></div>
+                    <div class="stat-card"><div class="stat-label">Remaining</div><div class="stat-value">₹1.57L</div></div>
+                    <div class="stat-card"><div class="stat-label">Utilization</div><div class="stat-value">58%</div></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <h3>Budget Categories</h3>
+                        <a href="404.html">View All</a>
+                    </div>
+                    <div class="card-body">
+
+                        <div style="margin-bottom:22px">
+                            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
+                                <strong>Housing</strong><span>₹82,000 / ₹1,15,000</span>
+                            </div>
+                            <div class="progress"><span style="width:72%"></span></div>
+                        </div>
+
+                        <div style="margin-bottom:22px">
+                            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
+                                <strong>Food & Daily</strong><span>₹48,000 / ₹1,00,000</span>
+                            </div>
+                            <div class="progress"><span style="width:48%"></span></div>
+                        </div>
+
+                        <div style="margin-bottom:22px">
+                            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
+                                <strong>Transport</strong><span>₹26,000 / ₹50,000</span>
+                            </div>
+                            <div class="progress"><span style="width:52%"></span></div>
+                        </div>
+
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px">
+                                <strong>Subscriptions</strong><span>₹21,000 / ₹62,000</span>
+                            </div>
+                            <div class="progress"><span style="width:34%"></span></div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- REPORTS -->
+            <section class="dashboard-section" id="section-reports">
+
+                <div class="section-head">
+                    <div>
+                        <h2>My Reports</h2>
+                        <p>View your financial summaries and personal reports.</p>
+                    </div>
+                    <div class="actions">
+                        <a href="404.html" class="btn btn-primary">Generate Report</a>
+                        <a href="404.html" class="btn btn-light">View All</a>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-box"><small>Total Income</small><strong>₹6.42L</strong></div>
+                    <div class="info-box"><small>Total Expenses</small><strong>₹2.18L</strong></div>
+                    <div class="info-box"><small>Net Savings</small><strong>₹4.24L</strong></div>
+                </div>
+
+                <br>
+
+                <div class="card">
+                    <div class="card-head">
+                        <h3>Available Reports</h3>
+                        <a href="404.html">View All</a>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Report</th><th>Period</th><th>Generated</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr><td>Monthly Expense Summary</td><td>August 2026</td><td>01 Sep 2026</td><td><span class="status paid">Ready</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>Income Summary</td><td>August 2026</td><td>01 Sep 2026</td><td><span class="status paid">Ready</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>Budget Performance</td><td>August 2026</td><td>01 Sep 2026</td><td><span class="status paid">Ready</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                                <tr><td>Payment History</td><td>September 2026</td><td>09 Sep 2026</td><td><span class="status processing">Processing</span></td><td><a href="404.html" class="btn btn-light">View</a></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- PROFILE -->
+            <section class="dashboard-section" id="section-profile">
+
+                <div class="section-head">
+                    <div>
+                        <h2>My Profile</h2>
+                        <p>View your finance account information.</p>
+                    </div>
+                    <a href="404.html" class="btn btn-primary">Edit Profile</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label>Account Type</label>
+                                <input class="form-control" value="Finance User" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input class="form-control" id="profileEmail" value="user@example.com" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Login Time</label>
+                                <input class="form-control" id="profileLoginTime" value="--" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Account Status</label>
+                                <input class="form-control" value="Active" readonly>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Account Information</label>
+                                <textarea class="form-control" readonly>Your finance user dashboard provides access to personal transactions, invoices, payments, expenses, budgets and reports.</textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- SETTINGS -->
+            <section class="dashboard-section" id="section-settings">
+
+                <div class="section-head">
+                    <div>
+                        <h2>Settings</h2>
+                        <p>Manage your finance dashboard preferences.</p>
+                    </div>
+                    <a href="404.html" class="btn btn-primary">Save Changes</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input class="form-control" id="settingsEmail" value="user@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Currency</label>
+                                <select class="form-control">
+                                    <option>INR - ₹</option>
+                                    <option>USD - $</option>
+                                    <option>EUR - €</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Timezone</label>
+                                <select class="form-control">
+                                    <option>Asia/Kolkata</option>
+                                    <option>UTC</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Statement Frequency</label>
+                                <select class="form-control">
+                                    <option>Monthly</option>
+                                    <option>Weekly</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Dashboard Status</label>
+                                <input class="form-control" value="Your finance dashboard is active and running normally." readonly>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<script>
+/* =========================================
+   LOGIN / SESSION INFORMATION
+========================================= */
+
+const storedEmail =
+    sessionStorage.getItem("stacklyEmail") ||
+    localStorage.getItem("stacklySignupEmail") ||
+    "user@example.com";
+
+let loginTime =
+    sessionStorage.getItem("stacklyLoginTime");
+
+if (!loginTime) {
+    loginTime = new Date().toLocaleString([], {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+    sessionStorage.setItem("stacklyLoginTime", loginTime);
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function setValue(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+}
+
+setText("sideEmail", storedEmail);
+setText("topEmail", storedEmail);
+setText("welcomeEmail", storedEmail);
+setText("loginTime", loginTime);
+setText("welcomeLoginTime", loginTime);
+
+setValue("profileEmail", storedEmail);
+setValue("profileLoginTime", loginTime);
+setValue("settingsEmail", storedEmail);
+
+const avatarLetter = storedEmail.charAt(0).toUpperCase() || "U";
+setText("sideAvatar", avatarLetter);
+setText("topAvatar", avatarLetter);
+
+
+/* =========================================
+   MOBILE SIDEBAR
+========================================= */
+
+const sidebar = document.getElementById("dashSidebar");
+const overlay = document.getElementById("sidebarOverlay");
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+
+function openSidebar() {
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+}
+
+function closeSidebar() {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+}
+
+mobileMenuBtn.addEventListener("click", openSidebar);
+overlay.addEventListener("click", closeSidebar);
+
+
+/* =========================================
+   SECTION NAVIGATION
+========================================= */
+
+const sectionData = {
+    dashboard: [
+        "My Finance Dashboard",
+        "Track your payments, expenses, invoices and financial activity."
+    ],
+    transactions: [
+        "My Transactions",
+        "Review your personal income and expense transactions."
+    ],
+    invoices: [
+        "My Invoices",
+        "View your invoices, due dates and payment status."
+    ],
+    payments: [
+        "Payments",
+        "Track your recent payments and payment status."
+    ],
+    expenses: [
+        "My Expenses",
+        "Monitor your personal spending and expense history."
+    ],
+    budget: [
+        "My Budget",
+        "Monitor monthly limits and your current spending."
+    ],
+    reports: [
+        "My Reports",
+        "View your financial summaries and personal reports."
+    ],
+    profile: [
+        "My Profile",
+        "View your finance account information."
+    ],
+    settings: [
+        "Settings",
+        "Manage your finance dashboard preferences."
+    ]
+};
+
+function showSection(name) {
+
+    if (!sectionData[name]) {
+        name = "dashboard";
+    }
+
+    document.querySelectorAll(".dashboard-section").forEach(section => {
+        section.classList.remove("active");
+    });
+
+    const target = document.getElementById("section-" + name);
+
+    if (target) {
+        target.classList.add("active");
+    }
+
+    document.querySelectorAll(".menu-link[data-section]").forEach(link => {
+        link.classList.toggle(
+            "active",
+            link.dataset.section === name
+        );
+    });
+
+    setText("pageHeading", sectionData[name][0]);
+    setText("pageSubheading", sectionData[name][1]);
+
+    closeSidebar();
+
+    document.querySelector(".dash-main").scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+    history.replaceState(null, "", "#" + name);
+}
+
+
+/* Sidebar links */
+
+document.querySelectorAll(".menu-link[data-section]").forEach(link => {
+
+    link.addEventListener("click", function(event) {
+
+        event.preventDefault();
+
+        showSection(this.dataset.section);
+    });
+});
+
+
+/* Internal View All links */
+
+document.querySelectorAll("[data-section-link]").forEach(link => {
+
+    link.addEventListener("click", function(event) {
+
+        event.preventDefault();
+
+        showSection(this.dataset.sectionLink);
+    });
+});
+
+
+/* Load initial hash */
+
+const initialSection =
+    window.location.hash.replace("#", "");
+
+if (sectionData[initialSection]) {
+    showSection(initialSection);
+}
+
+
+/* =========================================
+   TRANSACTION SEARCH + FILTER
+========================================= */
+
+const transactionSearch =
+    document.getElementById("transactionSearch");
+
+const transactionFilter =
+    document.getElementById("transactionFilter");
+
+function filterTransactions() {
+
+    const search =
+        (transactionSearch.value || "")
+        .toLowerCase()
+        .trim();
+
+    const status =
+        (transactionFilter.value || "")
+        .toLowerCase()
+        .trim();
+
+    document.querySelectorAll(
+        "#transactionTable tbody tr"
+    ).forEach(row => {
+
+        const text =
+            row.textContent.toLowerCase();
+
+        const rowStatus =
+            row.querySelector(".status")
+                ?.textContent
+                .toLowerCase()
+                .trim() || "";
+
+        row.style.display =
+            (!search || text.includes(search)) &&
+            (!status || rowStatus === status)
+                ? ""
+                : "none";
+    });
+}
+
+transactionSearch.addEventListener(
+    "input",
+    filterTransactions
+);
+
+transactionFilter.addEventListener(
+    "change",
+    filterTransactions
+);
+
+
+/* =========================================
+   EXPENSE SEARCH
+========================================= */
+
+const expenseSearch =
+    document.getElementById("expenseSearch");
+
+expenseSearch.addEventListener("input", function() {
+
+    const search =
+        this.value.toLowerCase().trim();
+
+    document.querySelectorAll(
+        "#expenseTable tbody tr"
+    ).forEach(row => {
+
+        row.style.display =
+            !search ||
+            row.textContent
+                .toLowerCase()
+                .includes(search)
+                ? ""
+                : "none";
+    });
+});
+
+
+/* =========================================
+   LOGOUT
+   ALWAYS REDIRECTS TO login.html
+========================================= */
+
+document.getElementById("logoutBtn").addEventListener(
+    "click",
+    function() {
+
+        const confirmed =
+            window.confirm(
+                "Are you sure you want to logout?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        sessionStorage.removeItem(
+            "stacklyLoggedIn"
+        );
+
+        sessionStorage.removeItem(
+            "stacklyRole"
+        );
+
+        sessionStorage.removeItem(
+            "stacklyEmail"
+        );
+
+        sessionStorage.removeItem(
+            "stacklyLoginTime"
+        );
+
+        window.location.href =
+            "login.html";
+    }
+);
+</script>
+
+</body>
+</html>
